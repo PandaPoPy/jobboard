@@ -3,9 +3,10 @@ from django.shortcuts import reverse
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractUser, UserManager, User
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
+#from polymorphic.manager import PolymorphicManager
 
-from polymorphic.manager import PolymorphicManager
+from .model_mixins import GetAbsoluteMixin
 
 
 OFFER_TYPES = (
@@ -44,7 +45,7 @@ APPLIANCE_STATUSES=(
 #         return ctype.model
 
 
-class CandidateUser(User):
+class CandidateUser(GetAbsoluteMixin, User):
     file = models.FileField(upload_to='candidate_cv', verbose_name=_('CV File'))
     skill = models.CharField(max_length=100, blank=True, verbose_name=_('Candidate Skill'))
 
@@ -67,7 +68,14 @@ class EnterpriseUser(User):
         verbose_name_plural = _('Enterprise Users')
 
 
-class Enterprise(models.Model):
+class EnterpriseManager(models.Manager):
+
+    def get_by_natural_key(self, name):
+        queryset=self.get(name=name)
+        return queryset
+
+
+class Enterprise(GetAbsoluteMixin, models.Model):
     name = models.CharField(max_length=250, unique=True, verbose_name=_('Name'))
     logo = models.ImageField(upload_to='enterprise_logo', blank=True, verbose_name=_('Logo'))
     #address = models.CharField(max_length=500)
@@ -77,15 +85,21 @@ class Enterprise(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('enterprise_detail', kwargs={'pk': self.pk})
+    def natural_key(self):
+        return [self.name]
 
     class Meta:
         verbose_name = _('Enterprise')
         verbose_name_plural = _('Enterprises')
 
 
-class Offer(models.Model):
+class OfferManager(models.Manager):
+
+    def get_by_natural_key(self, slug):
+        queryset=self.get(slug=slug)
+        return queryset
+
+class Offer(GetAbsoluteMixin, models.Model):
     enterprise = models.ForeignKey(Enterprise, verbose_name=_('Enterprise'))
     title = models.CharField(max_length=250, verbose_name=_('Title'))
     slug = models.SlugField(max_length=250, unique=True, verbose_name=_('Slug'))
@@ -101,9 +115,6 @@ class Offer(models.Model):
 
     def __str__(self):
         return self.title
-
-    def get_absolute_url(self):
-        return reverse('offer_detail', kwargs={'slug': self.slug})
 
     #  to create automatically the slug when an object is created
     def save(self, *args, **kwargs):  # à voir ne fonctionne pas en shell
