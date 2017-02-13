@@ -1,5 +1,4 @@
 from django.db import models
-from django.shortcuts import reverse
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractUser, UserManager, User
@@ -65,23 +64,26 @@ class EnterpriseUser(User):
 
 class EnterpriseManager(models.Manager):
 
-    def get_by_natural_key(self, name):
-        queryset=self.get(name=name)
+    def get_by_natural_key(self, slug):
+        queryset=self.get(slug=slug)
         return queryset
 
 
 class Enterprise(GetAbsoluteMixin, models.Model):
     name = models.CharField(max_length=250, unique=True, verbose_name=_('Name'))
     logo = models.ImageField(upload_to='enterprise_logo', blank=True, verbose_name=_('Logo'))
-    #address = models.CharField(max_length=500)
-    #postcode = models.CharField(max_length=10)
-    #city = models.CharField(max_length=250)
+    slug = models.SlugField(max_length=250, primary_key=True, verbose_name=_('Slug'))
 
     def __str__(self):
         return self.name
 
+    #  to create automatically the slug when an object is created
+    def save(self, *args, **kwargs):  # à voir ne fonctionne pas en shell
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)  #  en python3 : plus besoin de répéter la classe et le self
+
     def natural_key(self):
-        return [self.name]
+        return [self.slug]
 
     class Meta:
         verbose_name = _('Enterprise')
@@ -99,8 +101,8 @@ class OfferManager(models.Manager):
 class Offer(models.Model):
     enterprise = models.ForeignKey(Enterprise, verbose_name=_('Enterprise'))
     title = models.CharField(max_length=250, verbose_name=_('Title'))
-    slug = models.SlugField(max_length=250, primary_key=True, verbose_name=_('Slug'))
-    date_creation = models.DateTimeField(auto_now_add=True, verbose_name=_('Creation Date'))
+    slug = models.SlugField(max_length=250, null=True, verbose_name=_('Slug'))
+    creation_date = models.DateTimeField(auto_now_add=True, verbose_name=_('Creation Date'))
     start_date = models.DateField(verbose_name=_('Start Date'))
     duration = models.DurationField(null=True, blank=True, verbose_name=_('Duration'))
     type = models.CharField(max_length=100, choices=OFFER_TYPES, verbose_name=_('Type'))
@@ -118,9 +120,13 @@ class Offer(models.Model):
 
     #  to create automatically the slug when an object is created
     def save(self, *args, **kwargs):  # à voir ne fonctionne pas en shell
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super(Offer, self).save(*args, **kwargs)
+        if self.id:
+            self.slug = slugify('{}_{}'.format(self.id, self.title))
+            super().save(*args, **kwargs)  # en python3 : plus besoin de répéter la classe et le self
+        else:
+            super().save(*args, **kwargs)
+            self.slug = slugify('{}_{}'.format(self.id, self.title))
+            super().save(*args, **kwargs)
 
     def get_request_queryset(self, request):
         # import ipdb
@@ -136,7 +142,7 @@ class Offer(models.Model):
     class Meta:
         verbose_name = _('Offer')
         verbose_name_plural = _('Offers')
-        permissions = (('view_offer', _('Can view an offer')),)
+        #permissions = (('view_offer', _('Can view an offer')),)
 
 
 class Appliance(models.Model):
@@ -150,9 +156,6 @@ class Appliance(models.Model):
         return "Candidature du Candidat : {} sur l'Offre : {}".format(self.candidate_user, self.offer)
 
     class Meta:
-        unique_together=(
-            ('offer','candidate_user'),
-        )
         verbose_name = _('Appliance')
         verbose_name_plural = _('Appliances')
-        permissions = (('view_appliance', _('Can view an appliance')),)
+        #permissions = (('view_appliance', _('Can view an appliance')),)

@@ -23,12 +23,12 @@ from django.contrib.auth.views import (
 )
 from django.core.urlresolvers import reverse_lazy
 
-import usermanagement.urls
+import jobmanagement.urls
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    #url(r'^', include(usermanagement.urls)),
+    url(r'^', include(jobmanagement.urls)),
     url(r'^login/?$', login, name='login'),
     url(r'^logout/?$', logout, {'template_name': 'registration/logout.html'},
         name='logout'),
@@ -47,6 +47,7 @@ urlpatterns = [
     url(r'^password-reset/done/?$', password_reset_done,
         name='password_reset_done'),
 ]
+
 
 if settings.DEBUG:
     import debug_toolbar
