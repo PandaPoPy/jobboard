@@ -1,0 +1,23 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Jobboard{%endblock%}</title>
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+
+<body>
+<h1>Hello {{ user }} !</h1>
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block content %}
+{% endblock %}
+</body>
+</html>

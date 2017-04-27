@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Détail de l'Offre{% endblock %}
+
+{% block content %}
+<h1>Détail de l'Offre : {{object}}</h1>
+    <p>{{object.title}}</p>
+    <p>{{object.enterprise}}</p>
+    <p>{{object.slug}}</p>
+    <p>{{object.creation_date}}</p>
+    <p>{{object.start_date}}</p>
+    <p>{{object.duration}}</p>
+    <p>{{object.type}}</p>
+    <p>{{object.description}}</p>
+    <p>{{object.city}}</p>
+    <p>{{object.skill}}</p>
+
+<h3><a href="{% url 'jobmanagement:home' %}">Retour</a></h3>
+{% endblock %}

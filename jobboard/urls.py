@@ -28,7 +28,7 @@ import jobmanagement.urls
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    url(r'^', include(jobmanagement.urls)),
+    url(r'^', include(jobmanagement.urls, namespace='jobmanagement')),  # le namespace se met ici car il s'applique à une famille d'urls
     url(r'^login/?$', login, name='login'),
     url(r'^logout/?$', logout, {'template_name': 'registration/logout.html'},
         name='logout'),

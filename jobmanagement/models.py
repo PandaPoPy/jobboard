@@ -46,7 +46,7 @@ class User(PolymorphicModel, AbstractUser):
 
 
 class CandidateUser(GetAbsoluteMixin, User):
-    file = models.FileField(upload_to='candidate_cv', verbose_name=_('CV File'))
+    file = models.FileField(upload_to='candidate_cv', null=True, blank=True, verbose_name=_('CV File'))
     skill = models.CharField(max_length=100, blank=True, verbose_name=_('Candidate Skill'))
 
     class Meta:
@@ -98,7 +98,7 @@ class OfferManager(models.Manager):
         return queryset
 
 
-class Offer(models.Model):
+class Offer(GetAbsoluteMixin, models.Model):
     enterprise = models.ForeignKey(Enterprise, verbose_name=_('Enterprise'))
     title = models.CharField(max_length=250, verbose_name=_('Title'))
     slug = models.SlugField(max_length=250, null=True, verbose_name=_('Slug'))

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}Formulaire de Candidature{% endblock %}
+
+{% block content %}
+<h1>L'objet Offre : {{offer.title}}</h1>
+
+<form method="post" action="">
+{% csrf_token %}
+{% bootstrap_form form %}
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">
+      {% bootstrap_icon "star" %} Submit
+    </button>
+    {% endbuttons %}
+</form>
+{% endblock %}

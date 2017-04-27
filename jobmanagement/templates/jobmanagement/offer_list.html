@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Offres rattachées{% endblock %}
+
+{% block content %}
+<h3><a href="{% url 'jobmanagement:register' %}">Créer son compte</a></h3>
+<h4><a href="{% url 'jobmanagement:register_recruiter' %}">Créer son compte Entreprise</a></h4>
+{% if user.type == 'enterpriseuser' %}
+<h4><a href="{% url 'jobmanagement:offer_create_recruiter' %}">Déposer une Annonce</a></h4>
+{% endif %}
+<h1>Liste des Offres</h1>
+{% for offer in offer_list %}
+    <h2><a href="{{ offer.get_absolute_url }}">{{offer}}</a></h2>
+    <h3><a href="{% url 'jobmanagement:appliance' offer.slug %}">Postuler à cette Offre</a></h3>
+{% endfor %}
+{% endblock %}
